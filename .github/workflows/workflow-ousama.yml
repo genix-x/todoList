@@ -1,0 +1,23 @@
+name: CI on Specific Label
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  job-marketing:
+    runs-on: [self-hosted, ousama]
+    if: github.event.label.name == 'ousama'
+    container:
+      image: localhost:5001/ci-runner:v3
+    env:
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show issue content
+        run: |
+          gh issue view $ISSUE_NUMBER --repo $GITHUB_REPOSITORY \
+            --json number,title,body --jq '.'
