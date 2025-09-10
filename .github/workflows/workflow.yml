@@ -6,7 +6,7 @@ on:
 
 jobs:
   developer:
-    runs-on: [self-hosted, developer]
+    runs-on: [developer]
     if: github.event.label.name == 'testing'
     env:
       ISSUE_NUMBER: ${{ github.event.issue.number }}
