@@ -9,7 +9,7 @@ jobs:
     runs-on: [self-hosted, developer]
     if: github.event.label.name == 'testing'
     container:
-      image: localhost:5001/ci-runner:v3
+      image: node:20-bullseye
     env:
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
