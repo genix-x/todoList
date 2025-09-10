@@ -5,11 +5,9 @@ on:
     types: [labeled]
 
 jobs:
-  job-marketing:
+  developer:
     runs-on: [self-hosted, developer]
     if: github.event.label.name == 'testing'
-    container:
-      image: node:20-bullseye
     env:
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,5 +17,5 @@ jobs:
 
       - name: Show issue content
         run: |
-          gh issue view $ISSUE_NUMBER --repo $GITHUB_REPOSITORY \
+          gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
             --json number,title,body --jq '.'
