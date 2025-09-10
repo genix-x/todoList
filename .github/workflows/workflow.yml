@@ -1,0 +1,26 @@
+name: CI on Specific Label
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  job-marketing:
+    runs-on: [self-hosted, marketing]
+    if: github.event.label.name == 'marketing'
+    steps:
+      - name: Label run-ci détecté !
+        run: |
+          echo "🚀 LABEL 'run-ci' DÉTECTÉ ! 🚀"
+          echo "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+          echo "Je lance maintenant les actions CI..."
+          echo "Simulation: tests, build, deploy..."
+          
+      - name: Pseudo CI tasks
+        run: |
+          echo "✅ Running tests..."
+          sleep 2
+          echo "✅ Building project..."
+          sleep 2
+          echo "✅ Deploying..."
+          echo "�� CI terminé avec succès !"
