@@ -7,7 +7,7 @@ on:
 jobs:
   job-marketing:
     runs-on: [self-hosted, developer]
-    if: github.event.label.name == 'ready'
+    if: github.event.label.name == 'testing'
     container:
       image: ci-runner:latest
     env:
