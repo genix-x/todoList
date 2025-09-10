@@ -6,7 +6,7 @@ on:
 
 jobs:
   job-marketing:
-    runs-on: [self-hosted, ousama]
+    runs-on: [ousama]
     if: github.event.label.name == 'ousama'
     container:
       image: localhost:5001/ci-runner:v3
