@@ -6,21 +6,18 @@ on:
 
 jobs:
   job-marketing:
-    runs-on: [self-hosted, marketing]
-    if: github.event.label.name == 'marketing'
+    runs-on: [self-hosted, developer]
+    if: github.event.label.name == 'developer'
+    container:
+      image: ci-runner:latest
+    env:
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Label run-ci détecté !
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show issue content
         run: |
-          echo "🚀 LABEL 'run-ci' DÉTECTÉ ! 🚀"
-          echo "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
-          echo "Je lance maintenant les actions CI..."
-          echo "Simulation: tests, build, deploy..."
-          
-      - name: Pseudo CI tasks
-        run: |
-          echo "✅ Running tests..."
-          sleep 2
-          echo "✅ Building project..."
-          sleep 2
-          echo "✅ Deploying..."
-          echo "�� CI terminé avec succès !"
+          gh issue view $ISSUE_NUMBER --repo $GITHUB_REPOSITORY \
+            --json number,title,body --jq '.'
