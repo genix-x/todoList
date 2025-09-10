@@ -8,6 +8,8 @@ jobs:
   job-marketing:
     runs-on: [self-hosted, developer]
     if: github.event.label.name == 'testing'
+    container:
+      image: ci-runner:latest
     env:
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
