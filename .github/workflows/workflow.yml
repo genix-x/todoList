@@ -7,13 +7,17 @@ on:
 jobs:
   developer:
     runs-on: [developer]
+    # Exécuter seulement si l’issue est ouverte et non verrouillée
     if: github.event.issue.state == 'open' && github.event.issue.locked == false
-    env:
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Plandex workflow
-        run: ./scripts/run-plandex.sh
+      - name: Run Plandex (local, no Postgres)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # (optionnel) explicite, mais normalement fournis par défaut :
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          bash /actions-runner/run-plandex.sh
