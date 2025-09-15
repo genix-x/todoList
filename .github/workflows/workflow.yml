@@ -26,4 +26,4 @@ jobs:
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model anthropic-blend
           plandex model-packs
-          
+          plandex new --name task14
