@@ -16,6 +16,6 @@ jobs:
 
       - name: Init & dev Plandex
         run: |
-          plandex new
+          plandex new -n "task-5"
           ls -al 
           curl http://172.17.0.2:8099
