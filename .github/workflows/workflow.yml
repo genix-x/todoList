@@ -16,6 +16,7 @@ jobs:
 
       - name: Init & dev Plandex
         run: |
+          export
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model anthropic-blend
           plandex new -n "feat-55"
