@@ -10,6 +10,12 @@ jobs:
 
     if: github.event.issue.state == 'open' && github.event.issue.locked == false
 
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
+      PLANDEX_HOST: ${{ secrets.PLANDEX_HOST }}
+      PLANDEX_SKIP_CLAUDE_PROMPT: ${{ secrets.PLANDEX_SKIP_CLAUDE_PROMPT }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,4 +23,3 @@ jobs:
       - name: Init & dev Plandex
         run: |
           export
-          
