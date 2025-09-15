@@ -17,6 +17,7 @@ jobs:
       - name: Init & dev Plandex
         run: |
           echo $SHELL
+          ps -p $$
           plandex new -n "feat-59"
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model anthropic-blend
