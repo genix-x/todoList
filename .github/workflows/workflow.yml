@@ -14,52 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show context
-        run: |
-          echo "📂 Workspace: $GITHUB_WORKSPACE"
-          echo "📦 Repo:      $GITHUB_REPOSITORY"
-          echo "🔢 Issue:     $ISSUE_NUMBER"
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-
-      - name: Cleanup ancien run
-        run: rm -rf .plandex* plandex.json issue.json
-
-      - name: GitHub auth for PRs
-        run: |
-          gh auth setup-git
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name  "github-actions[bot]"
-
-      - name: Récupérer issue JSON
-        run: |
-          gh issue view "$ISSUE_NUMBER" \
-            --repo "$GITHUB_REPOSITORY" \
-            --json body --jq '.body' | jq . > issue.json
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-
-      - name: Extraire infos issue
-        id: parse_issue
-        run: |
-          ISSUE_ID=$(jq -r '.id' issue.json)
-          PROMPT=$(jq -r '.prompt' issue.json)
-          MAX_RETRIES=$(jq -r '.max_retries // 5' issue.json)
-          ISSUE_NAME=$(jq -r '.name' issue.json)
-
-          echo "issue_id=$ISSUE_ID"     >> $GITHUB_OUTPUT
-          echo "prompt=$PROMPT"        >> $GITHUB_OUTPUT
-          echo "max_retries=$MAX_RETRIES" >> $GITHUB_OUTPUT
-          echo "issue_name=$ISSUE_NAME"  >> $GITHUB_OUTPUT
-
-      - name: Créer branche
-        run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
-
       - name: Init & dev Plandex
         run: |
-          plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
+          plandex new -n "feat-50"
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model anthropic-blend
           echo "${{ steps.parse_issue.outputs.prompt }}" | \
