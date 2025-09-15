@@ -23,4 +23,3 @@ jobs:
       - name: Init & dev Plandex
         run: |
           export
-          plandex new -n "task-12"
