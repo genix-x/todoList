@@ -17,3 +17,4 @@ jobs:
       - name: Init & dev Plandex
         run: |
           plandex --help
+          curl http://172.17.0.2:8099
