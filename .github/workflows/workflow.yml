@@ -16,7 +16,5 @@ jobs:
 
       - name: Init & dev Plandex
         run: |
-          ANTHROPIC_API_KEY="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" PLANDEX_TOKEN="pldx_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1IjoiY2U1ZGQwYzEtODcwMS00NzMzLThjNzQtYzcxMjEzOGJhNzk2IiwibyI6IjgxODE4OTRkLTllZmItNDM0ZC1hODE1LTgwODU0MjNlNDc4MiIsInQiOiJlN2RhMGM1Mi1mZWE2LTRmOTMtYTVlMC04ODQ0OTExMGNhOWQifQ.3sugED4zpQXXJiqbTDI6vBBkP48yyNe17svuK7kk4NU" PLANDEX_HOST=http://172.17.0.2:8099 PLANDEX_SKIP_CLAUDE_PROMPT=true plandex new -n "task-5"
-          ls -al 
-          curl http://172.17.0.2:8099
           export
+          
