@@ -14,11 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup GitHub CLI
-        uses: cli/cli-action@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Show context
         run: |
           echo "📂 Workspace: $GITHUB_WORKSPACE"
@@ -38,7 +33,6 @@ jobs:
           git config user.name  "github-actions[bot]"
 
       - name: Récupérer issue JSON
-        id: issue_json
         run: |
           gh issue view "$ISSUE_NUMBER" \
             --repo "$GITHUB_REPOSITORY" \
