@@ -96,7 +96,6 @@ jobs:
           # 4. Exécuter plandex avec le prompt
           plandex tell \
             --apply \
-            --auto-exec \
             --commit \
             --no-exec \
             --file "$RUNNER_TEMP/prompt.txt" \
