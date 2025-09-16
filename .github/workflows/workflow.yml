@@ -74,9 +74,18 @@ jobs:
 
       - name: Development Plandex
         run: |
+          # 1. Créer une nouvelle branche/feature
           plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
-          echo "${{ steps.parse_issue.outputs.prompt }}" | \
-            plandex tell --apply --auto-exec --commit --no-exec - > plandex_output.log 2>&1            
+
+          # 2. Sauvegarder le prompt dans un fichier temporaire (runner, pas le repo)
+          echo "${{ steps.parse_issue.outputs.prompt }}" > "$RUNNER_TEMP/prompt.txt"
+
+          # 3. Lancer plandex avec le fichier comme entrée
+          # plandex tell --apply --auto-exec --commit --no-exec - < "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1
+          plandex tell --apply --auto-exec --commit --no-exec - < "$RUNNER_TEMP/prompt.txt"
+
+          # 4. Nettoyer (optionnel, $RUNNER_TEMP est déjà éphémère mais safe à rm)
+          rm -f "$RUNNER_TEMP/prompt.txt"
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
           PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
