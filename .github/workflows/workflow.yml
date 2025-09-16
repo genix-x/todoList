@@ -30,6 +30,7 @@ jobs:
       - name: Init & dev Plandex
         run: |
           export
+          cat /actions-runner/config/anthropic-models.json
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model default anthropic-blend
           plandex new -n "task-18"
