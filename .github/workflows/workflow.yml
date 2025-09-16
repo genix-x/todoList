@@ -68,10 +68,10 @@ jobs:
           MAX_RETRIES=$(jq -r '.max_retries // 5' issue.json)
           ISSUE_NAME=$(jq -r '.name' issue.json)
 
-          echo "issue_id=$ISSUE_ID"       >> $GITHUB_OUTPUT
-          echo "prompt=$PROMPT"           >> $GITHUB_OUTPUT
+          echo "issue_id=$ISSUE_ID" >> $GITHUB_OUTPUT
+          echo "prompt=$PROMPT" >> $GITHUB_OUTPUT
           echo "max_retries=$MAX_RETRIES" >> $GITHUB_OUTPUT
-          echo "issue_name=$ISSUE_NAME"   >> $GITHUB_OUTPUT
+          echo "issue_name=$ISSUE_NAME" >> $GITHUB_OUTPUT
 
       - name: Créer branche
         run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
@@ -110,8 +110,8 @@ jobs:
           cat prompt.txt
           echo ""
           
-          # Créer le script expect
-          cat > run_plandex.exp << 'EXPECT_SCRIPT'
+          # Créer le script expect dans un fichier
+          cat > run_plandex.exp << 'EOF'
 #!/usr/bin/expect -f
 
 set timeout 300
@@ -160,7 +160,7 @@ expect {
 
 puts "=== Plandex execution finished ==="
 exit 0
-EXPECT_SCRIPT
+EOF
 
           # Rendre le script exécutable
           chmod +x run_plandex.exp
