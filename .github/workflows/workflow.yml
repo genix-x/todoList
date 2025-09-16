@@ -18,7 +18,7 @@ jobs:
     #   PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
     #   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     #   PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
-
+    
     permissions:
       contents: write
       pull-requests: write
@@ -75,8 +75,8 @@ jobs:
 
       - name: Init Plandex
         run: |
-          plandex-dev models custom -f /actions-runner/config/anthropic-models.json --save
-          plandex-dev set-model default anthropic-blend
+          plandex models custom -f /actions-runner/config/anthropic-models.json --save
+          plandex set-model default anthropic-blend
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
           PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
@@ -97,7 +97,7 @@ jobs:
           ISSUE_ID=$(jq -r '.id' issue.json)
 
           # 2. Créer une nouvelle plan branch Plandex
-          plandex-dev new -n "$ISSUE_ID"
+          plandex new -n "$ISSUE_ID"
 
           # 3. Extraire le prompt dans un fichier temporaire
           jq -r '.prompt' issue.json > "$RUNNER_TEMP/prompt.txt"
@@ -109,9 +109,9 @@ jobs:
           cat "$RUNNER_TEMP/prompt.txt"
           echo ""
 
-          # 4. Exécuter plandex-dev avec le prompt
-          # plandex-dev tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
-          plandex-dev chat "$RUNNER_TEMP/prompt.txt"
+          # 4. Exécuter plandex avec le prompt
+          # plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
+          plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt"
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
@@ -139,6 +139,6 @@ jobs:
         run: gh pr merge "${{ steps.parse_issue.outputs.issue_id }}" --merge --delete-branch
 
       - name: Fermer l’issue
-        run: gh issue close "$ISSUE_NUMBER" --comment "✅ Dev terminé et mergé par Plandex-dev (local, no-cloud)"
+        run: gh issue close "$ISSUE_NUMBER" --comment "✅ Dev terminé et mergé par Plandex (local, no-cloud)"
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
