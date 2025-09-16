@@ -1,27 +1,91 @@
-name: CI on Specific Label
+
+
+name: Genix coding
 
 on:
   issues:
     types: [labeled]
 
 jobs:
-  developer:
+  run-on-ready-label:
+    if: github.event.label.name == 'ready' && github.event.issue.state == 'open' && github.event.issue.locked == false
     runs-on: [developer]
 
-    if: github.event.issue.state == 'open' && github.event.issue.locked == false
-
-    env:
-      ANTHROPIC_API_KEY: "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"
-      PLANDEX_TOKEN: "pldx_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1IjoiY2U1ZGQwYzEtODcwMS00NzMzLThjNzQtYzcxMjEzOGJhNzk2IiwibyI6IjgxODE4OTRkLTllZmItNDM0ZC1hODE1LTgwODU0MjNlNDc4MiIsInQiOiJlN2RhMGM1Mi1mZWE2LTRmOTMtYTVlMC04ODQ0OTExMGNhOWQifQ.3sugED4zpQXXJiqbTDI6vBBkP48yyNe17svuK7kk4NU"
-      PLANDEX_HOST: "http://172.17.0.2:8099"
-      PLANDEX_SKIP_CLAUDE_PROMPT: "true"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-    
+
+      - name: Show context
+        run: |
+          echo "📂 Workspace: $GITHUB_WORKSPACE"
+          echo "📦 Repo:      $GITHUB_REPOSITORY"
+          echo "🔢 Issue:     $ISSUE_NUMBER"
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+
+      - name: Cleanup ancien run
+        run: rm -rf .plandex* plandex.json issue.json
+
+      - name: GitHub auth for PRs
+        run: |
+          gh auth setup-git
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+
+      - name: Récupérer issue JSON
+        run: |
+          gh issue view "$ISSUE_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json body --jq '.body' | jq . > issue.json
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+
+      - name: Extraire infos issue
+        id: parse_issue
+        run: |
+          ISSUE_ID=$(jq -r '.id' issue.json)
+          PROMPT=$(jq -r '.prompt' issue.json)
+          MAX_RETRIES=$(jq -r '.max_retries // 5' issue.json)
+          ISSUE_NAME=$(jq -r '.name' issue.json)
+
+          echo "issue_id=$ISSUE_ID"     >> $GITHUB_OUTPUT
+          echo "prompt=$PROMPT"        >> $GITHUB_OUTPUT
+          echo "max_retries=$MAX_RETRIES" >> $GITHUB_OUTPUT
+          echo "issue_name=$ISSUE_NAME"  >> $GITHUB_OUTPUT
+
+      - name: Créer branche
+        run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
+
       - name: Init & dev Plandex
         run: |
+          plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
-          plandex set-model default anthropic-blend
-          plandex new -n "task-18"
+          plandex set-model anthropic-blend
+          echo "${{ steps.parse_issue.outputs.prompt }}" | \
+            plandex tell --apply --auto-exec --commit --no-exec -
+        env:
+          PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
+          PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
 
+      - name: Push branche vers GitHub
+        run: git push --set-upstream origin "${{ steps.parse_issue.outputs.issue_id }}"
+
+      - name: Créer Pull Request
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.parse_issue.outputs.issue_id }}" \
+            --title "Merge ${{ steps.parse_issue.outputs.issue_id }} into main" \
+            --body "PR auto - ${{ steps.parse_issue.outputs.issue_name }}"
+
+      - name: Merge Pull Request et supprimer branche
+        run: gh pr merge "${{ steps.parse_issue.outputs.issue_id }}" --merge --delete-branch
+
+      - name: Fermer l’issue
+        run: gh issue close "$ISSUE_NUMBER" --comment "✅ Dev terminé et mergé par Plandex (local, no-cloud)"
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
