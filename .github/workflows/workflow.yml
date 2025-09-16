@@ -1,6 +1,3 @@
-
-
-
 name: Genix coding
 
 on:
@@ -63,10 +60,20 @@ jobs:
       - name: Créer branche
         run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
 
-      - name: Init & dev Plandex
+      - name: Init Plandex
         run: |
+          export 
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model default anthropic-blend
+        env:
+          PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
+          PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
+
+      - name: Development Plandex
+        run: |
+          export
           plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
           echo "${{ steps.parse_issue.outputs.prompt }}" | \
             plandex tell --apply --auto-exec --commit --no-exec -
