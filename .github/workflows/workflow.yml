@@ -28,8 +28,7 @@ jobs:
         run: rm -rf .plandex* plandex.json issue.json
 
       - name: Authentifier gh avec GITHUB_TOKEN
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: GitHub auth for PRs
         run: |
@@ -54,10 +53,10 @@ jobs:
           MAX_RETRIES=$(jq -r '.max_retries // 5' issue.json)
           ISSUE_NAME=$(jq -r '.name' issue.json)
 
-          echo "issue_id=$ISSUE_ID"     >> $GITHUB_OUTPUT
-          echo "prompt=$PROMPT"        >> $GITHUB_OUTPUT
+          echo "issue_id=$ISSUE_ID"       >> $GITHUB_OUTPUT
+          echo "prompt=$PROMPT"           >> $GITHUB_OUTPUT
           echo "max_retries=$MAX_RETRIES" >> $GITHUB_OUTPUT
-          echo "issue_name=$ISSUE_NAME"  >> $GITHUB_OUTPUT
+          echo "issue_name=$ISSUE_NAME"   >> $GITHUB_OUTPUT
 
       - name: Créer branche
         run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
@@ -72,25 +71,28 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
 
-      - name: Development Plandex
+      - name: Run Plandex
         run: |
+          # 1. Récupérer l'ID de l'issue
+          ISSUE_ID=$(jq -r '.id' issue.json)
 
-          # 1. Créer une nouvelle branche avec l'id de l'issue
-          plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
+          # 2. Créer une nouvelle plan branch Plandex
+          plandex new -n "$ISSUE_ID"
 
-          # 2. Extraire le prompt du JSON et l’écrire tel quel dans un fichier
-          echo '${{ steps.parse_issue.outputs.json }}' | jq -r '.prompt' > "$RUNNER_TEMP/prompt.txt"
+          # 3. Extraire le prompt dans un fichier temporaire
+          jq -r '.prompt' issue.json > "$RUNNER_TEMP/prompt.txt"
 
-          # 3. Exécuter plandex avec le prompt en entrée
-          # plandex tell --apply --auto-exec --commit --no-exec --no-stream - < "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1
+          echo "=== issue.json ==="
+          cat issue.json
+          echo ""
+          echo "=== prompt.txt ==="
           cat "$RUNNER_TEMP/prompt.txt"
-          # plandex tell --apply --auto-exec --commit --no-exec --file "$RUNNER_TEMP/prompt.txt"
-          exit 1
+          echo ""
 
+          # 4. Exécuter plandex avec le prompt
+          plandex tell --apply --auto-exec --commit --no-exec --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1
 
-
-
-          # 4. Nettoyer
+          # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
