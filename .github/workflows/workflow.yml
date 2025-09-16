@@ -1,6 +1,4 @@
 
-
-
 name: Genix coding
 
 on:
@@ -66,7 +64,6 @@ jobs:
 
       - name: Init Plandex
         run: |
-          export 
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model default anthropic-blend
         env:
@@ -77,10 +74,9 @@ jobs:
 
       - name: Development Plandex
         run: |
-          export
           plandex new -n "${{ steps.parse_issue.outputs.issue_id }}"
           echo "${{ steps.parse_issue.outputs.prompt }}" | \
-            plandex tell --apply --auto-exec --commit --no-exec -
+            plandex tell --apply --auto-exec --commit --no-exec - > plandex_output.log 2>&1            
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
           PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
