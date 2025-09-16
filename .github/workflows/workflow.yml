@@ -94,7 +94,7 @@ jobs:
           echo ""
 
           # 4. Exécuter plandex avec le prompt
-          plandex tell --apply --commit --auto-exec --no-exec --no-stream  --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
+          plandex tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt"
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
