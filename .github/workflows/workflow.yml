@@ -19,6 +19,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+    
+      - name: Debug environment
+        run: |
+          echo "ANTHROPIC_API_KEY exists: ${{ env.ANTHROPIC_API_KEY != '' }}"
+          echo "PLANDEX_TOKEN exists: ${{ env.PLANDEX_TOKEN != '' }}"
+          echo "PLANDEX_HOST: $PLANDEX_HOST"
+          env | grep -E "(ANTHROPIC|PLANDEX|OPENAI)" || echo "No relevant env vars found"
 
       - name: Init & dev Plandex
         run: |
