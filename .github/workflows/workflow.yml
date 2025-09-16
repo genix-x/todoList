@@ -11,12 +11,6 @@ jobs:
     runs-on: [developer]
     environment: dev
 
-    env:
-      PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
-      PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
-
 
     permissions:
       contents: write
