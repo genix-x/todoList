@@ -1,3 +1,6 @@
+
+
+
 name: Genix coding
 
 on:
@@ -10,12 +13,12 @@ jobs:
     runs-on: [developer]
     environment: dev
 
-    env:
-      PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
-      PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
-
+    # env:
+    #   PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
+    #   PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
+    #   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    #   PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
+    
     permissions:
       contents: write
       pull-requests: write
@@ -23,12 +26,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install expect
-        run: |
-          apt-get update
-          apt-get install -y expect
-          expect -version
 
       - name: Show context
         run: |
@@ -68,10 +65,10 @@ jobs:
           MAX_RETRIES=$(jq -r '.max_retries // 5' issue.json)
           ISSUE_NAME=$(jq -r '.name' issue.json)
 
-          echo "issue_id=$ISSUE_ID" >> $GITHUB_OUTPUT
-          echo "prompt=$PROMPT" >> $GITHUB_OUTPUT
+          echo "issue_id=$ISSUE_ID"       >> $GITHUB_OUTPUT
+          echo "prompt=$PROMPT"           >> $GITHUB_OUTPUT
           echo "max_retries=$MAX_RETRIES" >> $GITHUB_OUTPUT
-          echo "issue_name=$ISSUE_NAME" >> $GITHUB_OUTPUT
+          echo "issue_name=$ISSUE_NAME"   >> $GITHUB_OUTPUT
 
       - name: Créer branche
         run: git checkout -b "${{ steps.parse_issue.outputs.issue_id }}"
@@ -89,90 +86,35 @@ jobs:
       - name: Debug runner state
         run: |
           echo "PWD=$(pwd)"
-          echo "TTY: $([ -t 0 ] && echo 'YES' || echo 'NO')"
           echo "=== Git status ==="
           git status
           echo "=== Files ==="
           ls -la
 
-      - name: Run Plandex with expect
+      - name: Run Plandex
         run: |
-          set -e
-          
-          # Récupérer les infos
+          # 1. Récupérer l'ID de l'issue
           ISSUE_ID=$(jq -r '.id' issue.json)
-          jq -r '.prompt' issue.json > prompt.txt
-          
+
+          # 2. Créer une nouvelle plan branch Plandex
+          plandex new -n "$ISSUE_ID"
+
+          # 3. Extraire le prompt dans un fichier temporaire
+          jq -r '.prompt' issue.json > "$RUNNER_TEMP/prompt.txt"
+
           echo "=== issue.json ==="
           cat issue.json
           echo ""
           echo "=== prompt.txt ==="
-          cat prompt.txt
+          cat "$RUNNER_TEMP/prompt.txt"
           echo ""
-          
-          # Créer le script expect dans un fichier
-          cat > run_plandex.exp << 'EOF'
-#!/usr/bin/expect -f
 
-set timeout 300
-set issue_id [lindex $argv 0]
+          # 4. Exécuter plandex avec le prompt
+          # plandex tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
+          plandex tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt"
 
-# Enable logging pour debug
-log_user 1
-exp_internal 0
-
-puts "=== Starting Plandex with expect ==="
-puts "Issue ID: $issue_id"
-
-# Étape 1: Créer le plan
-puts "=== Creating new plan ==="
-spawn plandex new -n $issue_id
-expect {
-    timeout { 
-        puts "TIMEOUT during plan creation"
-        exit 1 
-    }
-    eof { 
-        puts "Plan created successfully"
-    }
-}
-
-# Attendre un peu
-sleep 1
-
-# Étape 2: Exécuter la commande tell
-puts "=== Running tell command ==="
-spawn plandex tell --apply --commit --auto-exec --no-stream --file prompt.txt
-
-expect {
-    timeout { 
-        puts "TIMEOUT during tell command"
-        exit 1 
-    }
-    "✅" {
-        puts "Success indicator found"
-        exp_continue
-    }
-    eof { 
-        puts "Tell command completed"
-    }
-}
-
-puts "=== Plandex execution finished ==="
-exit 0
-EOF
-
-          # Rendre le script exécutable
-          chmod +x run_plandex.exp
-          
-          # Exécuter avec expect
-          ./run_plandex.exp "$ISSUE_ID"
-          
-          echo "=== Files after plandex ==="
-          ls -la
-          
-          # Nettoyer
-          rm -f prompt.txt run_plandex.exp
+          # 5. Nettoyer
+          rm -f "$RUNNER_TEMP/prompt.txt"
 
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
@@ -180,50 +122,23 @@ EOF
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
 
-      - name: Vérifier les changements
-        run: |
-          echo "=== Git status after Plandex ==="
-          git status
-          echo "=== Git diff ==="
-          git diff --name-only
-          echo "=== Files in directory ==="
-          ls -la
-
-      - name: Commit et push si changements
-        run: |
-          if ! git diff --quiet || ! git diff --cached --quiet; then
-            git add -A
-            git commit -m "feat: ${{ steps.parse_issue.outputs.issue_name }}"
-            git push --set-upstream origin "${{ steps.parse_issue.outputs.issue_id }}"
-            echo "changes_made=true" >> $GITHUB_ENV
-          else
-            echo "Aucun changement détecté"
-            echo "changes_made=false" >> $GITHUB_ENV
-          fi
+      - name: Push branche vers GitHub
+        run: git push --set-upstream origin "${{ steps.parse_issue.outputs.issue_id }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Créer Pull Request
-        if: env.changes_made == 'true'
         run: |
           gh pr create \
             --base main \
             --head "${{ steps.parse_issue.outputs.issue_id }}" \
-            --title "feat: ${{ steps.parse_issue.outputs.issue_name }}" \
-            --body "🤖 Auto-generated by Plandex\n\nResolves #${{ github.event.issue.number }}"
+            --title "Merge ${{ steps.parse_issue.outputs.issue_id }} into main" \
+            --body "PR auto - ${{ steps.parse_issue.outputs.issue_name }}"
 
       - name: Merge Pull Request et supprimer branche
-        if: env.changes_made == 'true'
         run: gh pr merge "${{ steps.parse_issue.outputs.issue_id }}" --merge --delete-branch
 
-      - name: Fermer l'issue
-        if: env.changes_made == 'true'
-        run: gh issue close "$ISSUE_NUMBER" --comment "✅ Terminé et mergé par Plandex"
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-
-      - name: Commenter si pas de changements
-        if: env.changes_made == 'false'
-        run: gh issue comment "$ISSUE_NUMBER" --body "⚠️ Plandex s'est exécuté mais n'a produit aucun changement"
+      - name: Fermer l’issue
+        run: gh issue close "$ISSUE_NUMBER" --comment "✅ Dev terminé et mergé par Plandex (local, no-cloud)"
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
