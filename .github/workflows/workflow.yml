@@ -94,15 +94,7 @@ jobs:
           echo ""
 
           # 4. Exécuter plandex avec le prompt
-          rm -f index.html
-          script -q -c "
-            plandex tell \
-                --apply \
-                --commit \
-                --auto-exec \
-                --no-exec \
-                --file \"$RUNNER_TEMP/prompt.txt\"
-            " plandex_output.log || true
+          plandex tell --apply --commit --auto-exec --no-exec --no-stream  --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
