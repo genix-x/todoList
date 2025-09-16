@@ -11,6 +11,10 @@ jobs:
     runs-on: [developer]
     environment: dev
 
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -112,7 +116,7 @@ jobs:
         run: git push --set-upstream origin "${{ steps.parse_issue.outputs.issue_id }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Créer Pull Request
         run: |
           gh pr create \
