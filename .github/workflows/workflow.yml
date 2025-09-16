@@ -106,9 +106,7 @@ jobs:
           ls -la test_file
           rm test_file
 
-          plandex tell --apply --commit --auto-exec --no-exec --no-stream --file "Create a file `/github/workspace/index.html` with the basic HTML5 structure (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`), leaving the `<body>` empty." > plandex_output.log 2>&1 || true
-          ls -la /github/workspace/index.html
-          
+           
           # 4. Exécuter plandex avec le prompt
           plandex tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
 
