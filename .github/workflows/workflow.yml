@@ -98,8 +98,6 @@ jobs:
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
-
-          exit 1
         env:
           PLANDEX_HOST: ${{ vars.PLANDEX_HOST }}
           PLANDEX_SKIP_CLAUDE_PROMPT: ${{ vars.PLANDEX_SKIP_CLAUDE_PROMPT }}
