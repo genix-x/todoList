@@ -97,10 +97,9 @@ jobs:
           plandex tell \
             --apply \
             --commit \
+            --auto-exec \
             --no-exec \
             --file "$RUNNER_TEMP/prompt.txt" \
-            --bg \
-            --stop \
             > plandex_output.log 2>&1 || true
 
           # 5. Nettoyer
