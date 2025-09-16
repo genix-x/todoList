@@ -94,6 +94,7 @@ jobs:
           echo ""
 
           # 4. Exécuter plandex avec le prompt
+          rm -f index.html
           script -q -c "
             plandex tell \
                 --apply \
