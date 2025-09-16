@@ -111,7 +111,7 @@ jobs:
 
           # 4. Exécuter plandex avec le prompt
           # plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
-          plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" 2>&1 | cat
+          echo "" | plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" 2>&1 | cat
 
           tail -f ~/.plandex-home-v2/plandex.log
 
