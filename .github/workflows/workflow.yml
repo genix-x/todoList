@@ -111,7 +111,7 @@ jobs:
 
           # 4. Exécuter plandex-dev avec le prompt
           # plandex-dev tell --apply --commit --auto-exec --no-exec --no-stream --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
-          plandex-dev tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt"
+          plandex-dev chat "$RUNNER_TEMP/prompt.txt"
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
