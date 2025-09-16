@@ -11,26 +11,16 @@ jobs:
     if: github.event.issue.state == 'open' && github.event.issue.locked == false
 
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
-      PLANDEX_HOST:  ${{ secrets.PLANDEX_TOKEN }}
-      PLANDEX_SKIP_CLAUDE_PROMPT: ${{ secrets.PLANDEX_SKIP_CLAUDE_PROMPT }}
-
+      ANTHROPIC_API_KEY: "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"
+      PLANDEX_TOKEN: "pldx_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1IjoiY2U1ZGQwYzEtODcwMS00NzMzLThjNzQtYzcxMjEzOGJhNzk2IiwibyI6IjgxODE4OTRkLTllZmItNDM0ZC1hODE1LTgwODU0MjNlNDc4MiIsInQiOiJlN2RhMGM1Mi1mZWE2LTRmOTMtYTVlMC04ODQ0OTExMGNhOWQifQ.3sugED4zpQXXJiqbTDI6vBBkP48yyNe17svuK7kk4NU"
+      PLANDEX_HOST: "http://172.17.0.2:8099"
+      PLANDEX_SKIP_CLAUDE_PROMPT: "true"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
     
-      - name: Debug environment
-        run: |
-          echo "ANTHROPIC_API_KEY exists: ${{ env.ANTHROPIC_API_KEY != '' }}"
-          echo "PLANDEX_TOKEN exists: ${{ env.PLANDEX_TOKEN != '' }}"
-          echo "PLANDEX_HOST: $PLANDEX_HOST"
-          env | grep -E "(ANTHROPIC|PLANDEX|OPENAI)" || echo "No relevant env vars found"
-
       - name: Init & dev Plandex
         run: |
-          export
-          cat /actions-runner/config/anthropic-models.json
           plandex models custom -f /actions-runner/config/anthropic-models.json --save
           plandex set-model default anthropic-blend
           plandex new -n "task-18"
