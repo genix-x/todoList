@@ -1,3 +1,6 @@
+
+
+
 name: Genix coding
 
 on:
@@ -8,6 +11,7 @@ jobs:
   run-on-ready-label:
     if: github.event.label.name == 'ready' && github.event.issue.state == 'open' && github.event.issue.locked == false
     runs-on: [developer]
+    environment: dev
 
     steps:
       - name: Checkout repository
