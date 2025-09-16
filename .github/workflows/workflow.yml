@@ -26,8 +26,8 @@ jobs:
 
       - name: Install expect
         run: |
-          apt-get update
-          apt-get install -y expect
+          sudo apt-get update
+          sudo apt-get install -y expect
           expect -version
 
       - name: Show context
