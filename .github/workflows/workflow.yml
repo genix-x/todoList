@@ -100,7 +100,7 @@ jobs:
             --auto-exec \
             --no-exec \
             --file "$RUNNER_TEMP/prompt.txt" \
-            > plandex_output.log 2>&1 || true
+            | tee plandex_output.log || true
 
           # 5. Nettoyer
           rm -f "$RUNNER_TEMP/prompt.txt"
