@@ -13,7 +13,7 @@ jobs:
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
-      PLANDEX_HOST:  "172.17.0.3:8099"
+      PLANDEX_HOST:  "http://172.17.0.3:8099"
       PLANDEX_SKIP_CLAUDE_PROMPT: ${{ secrets.PLANDEX_SKIP_CLAUDE_PROMPT }}
 
     steps:
