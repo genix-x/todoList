@@ -75,11 +75,13 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PLANDEX_TOKEN: ${{ secrets.PLANDEX_TOKEN }}
 
-      - name: Debug repo state
+      - name: Debug runner state
         run: |
-          ls -la
+          echo "PWD=$(pwd)"
+          echo "=== Git status ==="
           git status
-          git log --oneline -n 5
+          echo "=== Files ==="
+          ls -la
 
       - name: Run Plandex
         run: |
