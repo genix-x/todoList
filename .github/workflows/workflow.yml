@@ -110,7 +110,9 @@ jobs:
 
       - name: Push branche vers GitHub
         run: git push --set-upstream origin "${{ steps.parse_issue.outputs.issue_id }}"
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Créer Pull Request
         run: |
           gh pr create \
