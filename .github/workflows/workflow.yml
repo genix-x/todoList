@@ -112,7 +112,7 @@ jobs:
           # 4. Exécuter plandex avec le prompt
           # plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" > plandex_output.log 2>&1 || true
           # echo "" | plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" 2>&1 | cat
-          plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" 2>&1
+          plandex tell --apply --commit --auto-exec --no-exec --file "$RUNNER_TEMP/prompt.txt" < /dev/null 2>&1
 
           
           # 5. Nettoyer
