@@ -6,7 +6,7 @@ on:
 
 jobs:
   hello:
-    runs-on: [self-hosted, fly]
+    runs-on: [self-hosted, dind]
     container:
       image: alpine:3.19
     steps:
