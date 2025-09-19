@@ -1,13 +1,13 @@
-name: Test Runner
+name: Test Fly Runner
 
 on:
   issues:
     types: [labeled]
+
 jobs:
   hello:
-    runs-on: [self-hosted, developer]
+    runs-on: [self-hosted, fly]
     container:
       image: alpine:3.19
     steps:
-      - name: Say hello
-        run: echo "Hello from inside the container!"
+      - run: echo "Hello from Fly.io runner!"
