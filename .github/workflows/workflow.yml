@@ -9,8 +9,8 @@ on:
 
 jobs:
   run-on-ready-label:
-    if: github.event.label.name == 'ready' && github.event.issue.state == 'open' && github.event.issue.locked == false
 
+    if: github.event.label.name == 'ready' && github.event.issue.state == 'open' && github.event.issue.locked == false && !contains(join(github.event.issue.labels.*.name, ' '), 'Blocked')
     runs-on: [developer]
     environment: dev
 
