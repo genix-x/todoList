@@ -10,7 +10,7 @@ on:
 jobs:
   run-on-ready-label:
 
-    if: github.event.label.name == 'ready' && github.event.issue.state == 'open' && github.event.issue.locked == false && !contains(join(github.event.issue.labels.*.name, ' '), 'Blocked')
+    if: github.event.label.name == 'ready' && github.event.issue.state == 'open'
     runs-on: [developer]
     environment: dev
 
@@ -25,6 +25,27 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Check blockers
+        id: check
+        run: |
+          issue=$(curl -s -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }})
+
+          state=$(echo "$issue" | jq -r '.state')
+          locked=$(echo "$issue" | jq -r '.locked')
+          blocked=$(echo "$issue" | jq -r '.issue_dependencies_summary.blocked_by')
+
+          echo "state=$state"
+          echo "locked=$locked"
+          echo "blocked_by=$blocked"
+
+          if [[ "$state" != "open" || "$locked" == "true" || "$blocked" -gt 0 ]]; then
+            echo "Issue not runnable (state=$state, locked=$locked, blocked_by=$blocked). Skipping."
+            exit 78
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
